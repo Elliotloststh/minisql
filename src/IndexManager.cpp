@@ -136,7 +136,7 @@ void IndexManager::keyConvert(string keyvalue,int type){
   else if(type==TYPE_FLOAT)
     convert >> keyfloat;
   else if(type>0 && type <=255)
-    convert >> keycharn;
+    keycharn = convert.str();
   else{
     cout << "keyConvert() Error: Invalid type" << endl;
     exit(1);
