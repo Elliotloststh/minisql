@@ -18,7 +18,7 @@ API::~API()
 
 void API::execute(SqlCommand sql)
 {
-    SqlCommand sql_temp = sql; //ÁÙÊ±¶¨ÒåµÄsqlÊôĞÔ
+    SqlCommand sql_temp = sql; //ä¸´æ—¶å®šä¹‰çš„sqlå±æ€§
     attr.clear(); con.clear(); attr_special.clear(); attr_normal.clear(); con_special.clear(); con_normal.clear();
     try {
         switch (sql_temp.get_command_type())
@@ -133,7 +133,7 @@ void API::execute(SqlCommand sql)
                     return;
                 }
                 
-                /*delete from table ÊôĞÔÃû£¬Êı¾İÀàĞÍ£¬Êı¾İ³¤¶È£¬ÊôĞÔÀàĞÍ£¬Ë÷ÒıÃû*/
+                /*delete from table å±æ€§åï¼Œæ•°æ®ç±»å‹ï¼Œæ•°æ®é•¿åº¦ï¼Œå±æ€§ç±»å‹ï¼Œç´¢å¼•å*/
                 if (sql_temp.command_op_vector.size() == 0)
                 {
                     attr = CL.Get_Attr_Info_All_Record(sql_temp.get_table_name());
@@ -405,29 +405,43 @@ void API::execute(SqlCommand sql)
 void API::sql_execfile(SqlCommand sql_temp)
 {
     ifstream read_in(sql_temp.get_file_name());
-    string sql_com;
-    
-    if (!read_in) //ÅĞ¶ÏÎÄ¼şÊÇ·ñ´ò¿ª
-    {
-        cout << "Can not open file!" << endl;
-        return;
-    }
-    
-    while (getline(read_in, sql_com)) //sql_comÊÇÒÑ¾­´æ·ÅÔÚÀïÃæµÄsqlÃüÁî
-    {
-        InterPreter inter_temp;
-        if(sql_com.empty())
-            continue;
-        
-        sql_com = inter_temp.initial_sentense(sql_com);
-        
-        if (sql_com == "error") //Èç¹û³ö´íµÄ»°£¬´òÓ¡³öÀ´¾ÍºğÁË
-            cout << "---- Syntax Error! ---- \n" << endl;
-        else
-        {
-            SqlCommand c = inter_temp.Final_expression(sql_com);
-            API api(c);
-            api.execute(c); //ÊÇÒ»¸öÕı³£µÄÓï¾äµÄ»°£¬ÖØĞÂÖ´ĞĞÒ»±éÕû¸öÓï¾ä
-        }
-    }
+	string sql_com;
+	string sql_clause = "";
+
+	if (!read_in) //åˆ¤æ–­æ–‡ä»¶æ˜¯å¦æ‰“å¼€
+	{
+		cout << "Can not open file!" << endl;
+		return;
+	}
+
+	while (getline(read_in, sql_com)) //sql_comæ˜¯å·²ç»å­˜æ”¾åœ¨é‡Œé¢çš„sqlå‘½ä»¤
+	{
+		InterPreter inter_temp;
+
+		if (sql_com.empty())
+			continue;
+
+		if (sql_com.find(';') == -1)
+		{
+			sql_clause += sql_com;
+			continue;
+		}
+		else
+		{
+			sql_clause += sql_com;
+		}
+
+		sql_com = inter_temp.initial_sentense(sql_clause);
+
+		if (sql_com == "error") //å¦‚æœå‡ºé”™çš„è¯ï¼Œæ‰“å°å‡ºæ¥å°±å¼äº†
+			cout << "---- Syntax Error! ---- \n" << endl;
+		else
+		{
+			SqlCommand c = inter_temp.Final_expression(sql_com);
+			API api(c);
+			api.execute(c); //æ˜¯ä¸€ä¸ªæ­£å¸¸çš„è¯­å¥çš„è¯ï¼Œé‡æ–°æ‰§è¡Œä¸€éæ•´ä¸ªè¯­å¥
+		}
+
+		sql_clause = "";
+	}
 }
