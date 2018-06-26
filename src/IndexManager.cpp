@@ -129,7 +129,6 @@ int IndexManager::getKeySize(int keytype){
 }
 
 void IndexManager::keyConvert(string keyvalue,int type){
-<<<<<<< HEAD
     stringstream convert;
     convert << keyvalue;
     if (type == TYPE_INT)
@@ -142,20 +141,6 @@ void IndexManager::keyConvert(string keyvalue,int type){
         cout << "keyConvert() Error: Invalid type" << endl;
         exit(1);
     }
-=======
-  stringstream convert;
-  convert << keyvalue;
-  if (type == TYPE_INT)
-    convert >> keyint;
-  else if(type==TYPE_FLOAT)
-    convert >> keyfloat;
-  else if(type>0 && type <=255)
-    keycharn = convert.str();
-  else{
-    cout << "keyConvert() Error: Invalid type" << endl;
-    exit(1);
-  }
->>>>>>> 19c10c0e4c28d716ec7e5a47d38c50b79e41fc93
 }
 
 int IndexManager::searchOne(string path,string key,int type){
@@ -241,7 +226,6 @@ void IndexManager::searchCondition(string database,string table,Condition& condi
 }
 
 void IndexManager::searchMutiCondition(string database,string table,vector<Condition>& condition,vector<int>& result){
-<<<<<<< HEAD
     vector< set<int> > resultorg;
     resultorg.resize(condition.size());
     int maxsize = 0;
@@ -268,34 +252,6 @@ void IndexManager::searchMutiCondition(string database,string table,vector<Condi
         result.resize(e-result.begin());
     }
     //    result.resize(minsize);
-=======
-  vector< set<int> > resultorg;
-  resultorg.resize(condition.size());
-  int maxsize = 0;
-  int minsize = 10000000;
-  for (int i = 0; i < condition.size(); i++)
-  {
-    searchCondition(database, table, condition[i], resultorg[i]);
-    if(resultorg[i].size()>maxsize)
-      maxsize = resultorg[i].size();
-    if(resultorg[i].size()<minsize)
-      minsize = resultorg[i].size();
-  }
-  
-  if(resultorg.size()==1){
-    set<int> s =resultorg[0];
-    for(auto e=s.begin();e!=s.end();e++)
-      result.push_back(*e);
-  }
-  else{
-    result.resize(maxsize);
-    auto e =result.begin();
-    for (int i = 0; i < resultorg.size() - 1; i++)
-      e=set_intersection(resultorg[i].begin(), resultorg[i].end(), resultorg[i + 1].begin(), resultorg[i + 1].end(), result.begin());
-    result.resize(e-result.begin());
-  }
-  //    result.resize(minsize);
->>>>>>> 19c10c0e4c28d716ec7e5a47d38c50b79e41fc93
 }
 
 void IndexManager::searchMany(string path, string keyfloor, string keyceil, int type, vector<int> &result){
