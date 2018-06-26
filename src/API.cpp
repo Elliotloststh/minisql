@@ -244,7 +244,7 @@ void API::execute(SqlCommand sql)
                 for (int i = 0; i < all_info.size(); i++)
                 {
                     info = all_info[i].attr_name;
-                    cout << setw(10) << info;
+                    cout << setw(MAX_NAME_LENGTH) << info;
                 }
                 cout<<endl;
                 /*print result*/
@@ -252,7 +252,7 @@ void API::execute(SqlCommand sql)
                 {
                     for (int j = 0; j < result[i].size(); j++)
                     {
-                        cout << setw(10) << result[i][j];
+                        cout << setw(MAX_NAME_LENGTH) << result[i][j];
                     }
                     cout<<endl;
                 }

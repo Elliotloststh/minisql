@@ -136,7 +136,7 @@ void IndexManager::keyConvert(string keyvalue,int type){
     else if(type==TYPE_FLOAT)
         convert >> keyfloat;
     else if(type>0 && type <=255)
-        convert >> keycharn;
+        keycharn = convert.str();
     else{
         cout << "keyConvert() Error: Invalid type" << endl;
         exit(1);
@@ -246,10 +246,12 @@ void IndexManager::searchMutiCondition(string database,string table,vector<Condi
     }
     else{
         result.resize(maxsize);
+        auto e =result.begin();
         for (int i = 0; i < resultorg.size() - 1; i++)
-            set_intersection(resultorg[i].begin(), resultorg[i].end(), resultorg[i + 1].begin(), resultorg[i + 1].end(), result.begin());
+            e=set_intersection(resultorg[i].begin(), resultorg[i].end(), resultorg[i + 1].begin(), resultorg[i + 1].end(), result.begin());
+        result.resize(e-result.begin());
     }
-    result.resize(minsize);
+    //    result.resize(minsize);
 }
 
 void IndexManager::searchMany(string path, string keyfloor, string keyceil, int type, vector<int> &result){
