@@ -315,7 +315,8 @@ void BPlusTree<Key>::save()
         setUsingSize(block,0);
         for (int i = 0; i < p->total_child; i++)
         {
-            char *ktmp = (char *)&(p->keys[i]);
+          
+            const char *ktmp = (char *)&(p->keys[i]);
             char *otmp = (char *)&(p->record_offsets[i]);
             memcpy(getContent(block) + getUsingSize(block), ktmp, key_size);
             setUsingSize(block,getUsingSize(block) + key_size);
