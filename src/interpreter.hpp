@@ -19,6 +19,8 @@ public:
     string get_first_word(string sql, string split);
     string del_first_word(string sql, string split);
     string split(string value);
+    string get_split_string_value(string sql);
+    string get_current_value(string sql, string split);
     
     SqlCommand drop_database(string sql);
     SqlCommand drop_table(string sql);

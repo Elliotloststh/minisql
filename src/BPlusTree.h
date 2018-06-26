@@ -15,6 +15,7 @@
 #include <vector>
 #include <queue>
 #include <set>
+#include <sstream>
 #include "BufferManager.h"
 
 using namespace std;
@@ -191,6 +192,10 @@ void TreeNode<Key>::DeleteRecord(int offset)
     total_child--;
 }
 
+
+template<typename T>
+struct identity {typedef T type;};
+
 template <class Key>
 class BPlusTree
 {
@@ -230,10 +235,8 @@ private:
     int getUsingSize(Block *block);
     char *getContent(Block *block);
     // related to the BUFFER ,need complete
-    void loadFromdisk(Block * block);
+    //void loadFromdisk(Block * block);
     void load();
-    
-    
     
 public:
     BPlusTree(string filename_, int degree_, int keysize);
@@ -245,8 +248,120 @@ public:
     void DeleteKey(Key &target);
     void DeleteKeyByoffset(Key &target, int offset);
     void debugPrint();
-    void save();
+    //  void save();
     bool checkKeyRepeat(Key &target);
+    
+private:
+    template<class KKey>
+    void savetemp(identity<KKey>){
+        Block *block = bm.getBlock(filename,0);
+        if(block==NULL)
+            block = bm.addBlock(filename);
+        
+        Node *p = getLeafHead();
+        int value_size = sizeof(int);
+        while (p != NULL)
+        {
+            block->pin();
+            setUsingSize(block,0);
+            for (int i = 0; i < p->total_child; i++)
+            {
+                char *ktmp = (char *)&(p->keys[i]);
+                char *otmp = (char *)&(p->record_offsets[i]);
+                memcpy(getContent(block) + getUsingSize(block), ktmp, key_size);
+                setUsingSize(block,getUsingSize(block) + key_size);
+                memcpy(getContent(block) + getUsingSize(block), otmp, value_size);
+                setUsingSize(block,getUsingSize(block) + value_size);
+            }
+            block->unPin();
+            block = bm.getNextBlock(block);
+            if(block==NULL)
+                block = bm.addBlock(filename);
+            p = p->next;
+        }
+    }
+    
+    void savetemp(identity<string>){
+        Block *block = bm.getBlock(filename,0);
+        if(block==NULL)
+            block = bm.addBlock(filename);
+        
+        Node *p = getLeafHead();
+        int value_size = sizeof(int);
+        while (p != NULL)
+        {
+            block->pin();
+            setUsingSize(block,0);
+            for (int i = 0; i < p->total_child; i++)
+            {
+                const char *ktmp = p->keys[i].c_str();
+                char *otmp = (char *)&(p->record_offsets[i]);
+                memcpy(getContent(block) + getUsingSize(block), ktmp, key_size);
+                setUsingSize(block,getUsingSize(block) + key_size);
+                memcpy(getContent(block) + getUsingSize(block), otmp, value_size);
+                setUsingSize(block,getUsingSize(block) + value_size);
+            }
+            block->unPin();
+            block = bm.getNextBlock(block);
+            if(block==NULL)
+                block = bm.addBlock(filename);
+            p = p->next;
+        }
+    }
+    template<class KKey>
+    void savetemp(){
+        savetemp(identity<KKey>());
+    }
+public:
+    void save(){
+        savetemp<Key>();
+    }
+    
+private:
+    
+    template<class KKey>
+    void lFdtemp(Block* block,identity<KKey> useless){
+        block->pin();
+        int value_size = sizeof(int);
+        char *key_loc = getContent(block);
+        char *value_loc = key_loc + key_size;
+        Key ktmp;
+        int offsettmp;
+        while (value_loc - getContent(block) < getUsingSize(block))
+        {
+            ktmp = *(Key *)key_loc;
+            offsettmp = *(int *)value_loc;
+            insertKey(ktmp, offsettmp);
+            key_loc += key_size + value_size;
+            value_loc += key_size + value_size;
+        }
+        block->unPin();
+    }
+    void lFdtemp(Block* block,identity<string> useless){
+        block->pin();
+        int value_size = sizeof(int);
+        char *key_loc = getContent(block);
+        char *value_loc = key_loc + key_size;
+        Key ktmp;
+        int offsettmp;
+        while (value_loc - getContent(block) < getUsingSize(block))
+        {
+            ktmp = key_loc;
+            offsettmp = *(int *)value_loc;
+            insertKey(ktmp, offsettmp);
+            key_loc += key_size + value_size;
+            value_loc += key_size + value_size;
+        }
+        block->unPin();
+    }
+    template <class KKey>
+    void lFdtemp(Block* block){
+        lFdtemp(block,identity<KKey>());
+    }
+    void loadFromdisk(Block * block){
+        lFdtemp<Key>(block);
+    }
+    
 };
 
 // From Buffer.h
@@ -268,25 +383,27 @@ char* BPlusTree<Key>::getContent(Block *block){
     return Blockhead + sizeof(int);
 }
 
-template <class Key>
-void BPlusTree<Key>::loadFromdisk(Block *block)
-{
-    block->pin();
-    int value_size = sizeof(int);
-    char *key_loc = getContent(block);
-    char *value_loc = key_loc + key_size;
-    Key ktmp;
-    int offsettmp;
-    while (value_loc - getContent(block) < getUsingSize(block))
-    {
-        ktmp = *(Key *)key_loc;
-        offsettmp = *(int *)value_loc;
-        insertKey(ktmp, offsettmp);
-        key_loc += key_size + value_size;
-        value_loc += key_size + value_size;
-    }
-    block->unPin();
-}
+/*
+ template <class Key>
+ void BPlusTree<Key>::loadFromdisk(Block *block)
+ {
+ block->pin();
+ int value_size = sizeof(int);
+ char *key_loc = getContent(block);
+ char *value_loc = key_loc + key_size;
+ Key ktmp;
+ int offsettmp;
+ while (value_loc - getContent(block) < getUsingSize(block))
+ {
+ ktmp = *(Key *)key_loc;
+ offsettmp = *(int *)value_loc;
+ insertKey(ktmp, offsettmp);
+ key_loc += key_size + value_size;
+ value_loc += key_size + value_size;
+ }
+ block->unPin();
+ }
+ */
 
 template <class Key>
 void BPlusTree<Key>::load()
@@ -300,35 +417,6 @@ void BPlusTree<Key>::load()
     }
 }
 
-template <class Key>
-void BPlusTree<Key>::save()
-{
-    Block *block = bm.getBlock(filename,0);
-    if(block==NULL)
-        block = bm.addBlock(filename);
-    
-    Node *p = getLeafHead();
-    int value_size = sizeof(int);
-    while (p != NULL)
-    {
-        block->pin();
-        setUsingSize(block,0);
-        for (int i = 0; i < p->total_child; i++)
-        {
-            char *ktmp = (char *)&(p->keys[i]);
-            char *otmp = (char *)&(p->record_offsets[i]);
-            memcpy(getContent(block) + getUsingSize(block), ktmp, key_size);
-            setUsingSize(block,getUsingSize(block) + key_size);
-            memcpy(getContent(block) + getUsingSize(block), otmp, value_size);
-            setUsingSize(block,getUsingSize(block) + value_size);
-        }
-        block->unPin();
-        block = bm.getNextBlock(block);
-        if(block==NULL)
-            block = bm.addBlock(filename);
-        p = p->next;
-    }
-}
 
 template <class Key>
 BPlusTree<Key>::BPlusTree(string filename_, int degree_, int keysize) : filename(filename_),
@@ -336,6 +424,71 @@ degree(degree_), key_size(keysize), root(NULL), leaf_head(NULL)
 {
     load();
 }
+
+
+
+/*
+ template<class Key>
+ void BPlusTree<Key>::save()
+ {
+ Block *block = bm.getBlock(filename,0);
+ if(block==NULL)
+ block = bm.addBlock(filename);
+ 
+ Node *p = getLeafHead();
+ int value_size = sizeof(int);
+ while (p != NULL)
+ {
+ block->pin();
+ setUsingSize(block,0);
+ for (int i = 0; i < p->total_child; i++)
+ {
+ char *ktmp = (char *)&(p->keys[i]);
+ char *otmp = (char *)&(p->record_offsets[i]);
+ memcpy(getContent(block) + getUsingSize(block), ktmp, key_size);
+ setUsingSize(block,getUsingSize(block) + key_size);
+ memcpy(getContent(block) + getUsingSize(block), otmp, value_size);
+ setUsingSize(block,getUsingSize(block) + value_size);
+ }
+ block->unPin();
+ block = bm.getNextBlock(block);
+ if(block==NULL)
+ block = bm.addBlock(filename);
+ p = p->next;
+ }
+ }
+ */
+
+/*
+ template<>
+ void BPlusTree<string>::save(){
+ Block *block = bm.getBlock(filename,0);
+ if(block==NULL)
+ block = bm.addBlock(filename);
+ 
+ Node *p = getLeafHead();
+ int value_size = sizeof(int);
+ while (p != NULL)
+ {
+ block->pin();
+ setUsingSize(block,0);
+ for (int i = 0; i < p->total_child; i++)
+ {
+ const char *ktmp = p->keys[i].c_str();
+ char *otmp = (char *)&(p->record_offsets[i]);
+ memcpy(getContent(block) + getUsingSize(block), ktmp, key_size);
+ setUsingSize(block,getUsingSize(block) + key_size);
+ memcpy(getContent(block) + getUsingSize(block), otmp, value_size);
+ setUsingSize(block,getUsingSize(block) + value_size);
+ }
+ block->unPin();
+ block = bm.getNextBlock(block);
+ if(block==NULL)
+ block = bm.addBlock(filename);
+ p = p->next;
+ }
+ }
+ */
 
 template <class Key>
 TreeNode<Key> *BPlusTree<Key>::searchGetLeaf(Key &target)

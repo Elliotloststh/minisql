@@ -224,7 +224,7 @@ SqlCommand InterPreter::create_index(string sql)
     return temp;
 }
 
-/*测试的是 insert into table values ('A', 'B', 'C' ...) ;*/
+/*测试的是 insert into table values ('A','B','C' ...) ;*/
 SqlCommand InterPreter::insert_values(string sql)
 {
     SqlCommand temp;
@@ -244,7 +244,7 @@ SqlCommand InterPreter::insert_values(string sql)
     
     while (get_first_word(sql, " )") != ";")
     {
-        string value = get_first_word(sql, " ),");
+        string value = get_current_value(sql, ",)");
         value = split(value);
         temp.push_col_values_vector(value);
         sql = del_first_word(sql, ",)");
@@ -285,10 +285,10 @@ SqlCommand InterPreter::delete_from(string sql)
             temp.push_command_op_vector(op_value);
             sql = del_first_word(sql, " ");
             
-            string right_value = get_first_word(sql, " ");
+            string right_value = get_current_value(sql, " ");
             right_value = split(right_value);
             temp.push_command_right_vector(right_value);
-            sql = del_first_word(sql, " ");             //这部分主要处理掉了条件里面的左值，右值和中间的比较值
+            sql = get_split_string_value(sql);             //这部分主要处理掉了条件里面的左值，右值和中间的比较值
             
             if (get_first_word(sql, " ") == "and")
                 sql = del_first_word(sql, " ");
@@ -331,10 +331,10 @@ SqlCommand InterPreter::select_from(string sql)
             temp.push_command_op_vector(op_value);
             sql = del_first_word(sql, " ");
             
-            string right_value = get_first_word(sql, " ");
+            string right_value = get_current_value(sql, " ");
             right_value = split(right_value);
             temp.push_command_right_vector(right_value);
-            sql = del_first_word(sql, " ");             //这部分主要处理掉了条件里面的左值，右值和中间的比较值
+            sql = get_split_string_value(sql);             //这部分主要处理掉了条件里面的左值，右值和中间的比较值
             
             if (get_first_word(sql, " ") == "and")
                 sql = del_first_word(sql, " ");
@@ -481,11 +481,11 @@ SqlCommand InterPreter::update_table(string sql)
     sql = del_first_word(sql, " "); //skip id
     sql = del_first_word(sql, " "); //skip =
     
-    string value = get_first_word(sql, " ");
+    string value = get_current_value(sql, " ");
     value = split(value);
     temp.set_col_value(value); //put the string value
     
-    sql = del_first_word(sql, " "); //delete col_value
+    sql = get_split_string_value(sql); //delete col_value
     
     if (get_first_word(sql, " ") == "where")
     {
@@ -500,10 +500,10 @@ SqlCommand InterPreter::update_table(string sql)
             temp.push_command_op_vector(op_value);
             sql = del_first_word(sql, " ");
             
-            string right_value = get_first_word(sql, " ");
+            string right_value = get_current_value(sql, " ");
             right_value = split(right_value);
             temp.push_command_right_vector(right_value);
-            sql = del_first_word(sql, " ");             //这部分主要处理掉了条件里面的左值，右值和中间的比较值
+            sql = get_split_string_value(sql);             //这部分主要处理掉了条件里面的左值，右值和中间的比较值
             
             if (get_first_word(sql, " ") == "and")
                 sql = del_first_word(sql, " ");
@@ -583,4 +583,49 @@ string InterPreter::split(string value)
     }
     
     return value;
+}
+
+string InterPreter::get_split_string_value(string sql)
+{
+    if (sql.find("'") == 0)
+    {
+        sql = del_first_word(sql, "'");
+        sql = del_first_word(sql, "'");
+        sql = del_first_word(sql, " ");
+        return sql;
+    }
+    else if (sql.find('"') == 0)
+    {
+        string temp = "\"";
+        sql = del_first_word(sql, temp);
+        sql = del_first_word(sql, temp);
+        sql = del_first_word(sql, " ");
+        return sql;
+    }
+    else
+    {
+        sql = del_first_word(sql, " ");
+        return sql;
+    }
+}
+
+string InterPreter::get_current_value(string sql, string split)
+{
+    if (sql.find("'") == 0)
+    {
+        sql = del_first_word(sql, "'");
+        int end_position = sql.find_first_of("'");
+        return sql.substr(0, end_position);
+    }
+    else if (sql.find('"') == 0)
+    {
+        sql = del_first_word(sql, "\"");
+        int end_position = sql.find_first_of("\"");
+        return sql.substr(0, end_position);
+    }
+    else
+    {
+        sql = get_first_word(sql, split);
+        return sql;
+    }
 }

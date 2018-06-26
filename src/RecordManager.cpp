@@ -127,8 +127,7 @@ int RecordManager::Record_DeleteAllValue(const string table_name, vector<Attribu
     int attr_no;
     
     int type;
-    
-    for(int i = 0; i < index_attr_name.size()/2; i=i+2)
+    for(int i = 0; i < index_attr_name.size()/2; ++i)
     {
         for(int j = 0; j < Attribute_vec.size(); ++j)
         {
@@ -150,7 +149,7 @@ int RecordManager::Record_DeleteAllValue(const string table_name, vector<Attribu
                 type = Attribute_vec[attr_no].attr_len;
                 break;
         }
-        IM.deleteAll(CL.Get_Used_Database(), table_name, index_attr_name[i], index_attr_name[i+1], type);
+        IM.deleteAll(CL.Get_Used_Database(), table_name, index_attr_name[2*i], index_attr_name[2*i+1], type);
     }
     return ret;
 }
@@ -1241,7 +1240,7 @@ void RecordManager::update_index(string table_name,vector<Attribute>& Attribute_
     char* chtmp;
     stringstream ss;
     
-    for(int i = 0; i < index_attr_name.size()/2; i=i+2)
+    for(int i = 0; i < index_attr_name.size()/2; i++)
     {
         for(int j = 0; j < Attribute_vec.size(); ++j)
         {
@@ -1278,7 +1277,7 @@ void RecordManager::update_index(string table_name,vector<Attribute>& Attribute_
         }
         if(index_attr_name[i*2] == select_attr.attr_name)
         {
-            string path = CL.used_Database + "+" + table_name + "+" + index_attr_name[i] + "+" + index_attr_name[i+1];
+            string path = CL.used_Database + "+" + table_name + "+" + index_attr_name[i*2] + "+" + index_attr_name[2*i+1];
             int no = IM.searchOne(path, ss.str(), type);
             IM.deleteOneBykey(path, ss.str(), type);
             IM.insertOne(path, value, type, no);
@@ -1303,7 +1302,7 @@ void RecordManager::delete_index(string table_name, vector<Attribute>& Attribute
     string strtmp;
     char* chtmp;
     stringstream ss;
-    for(int i = 0; i < index_attr_name.size()/2; i=i+2)
+    for(int i = 0; i < index_attr_name.size()/2; i++)
     {
         offset = 0;
         for(int j = 0; j < Attribute_vec.size(); ++i)
@@ -1339,7 +1338,7 @@ void RecordManager::delete_index(string table_name, vector<Attribute>& Attribute
             }
             offset+=Attribute_vec[i].attr_len;
         }
-        string path = CL.used_Database + "+" + table_name + "+" + index_attr_name[i] + "+" + index_attr_name[i+1];
+        string path = CL.used_Database + "+" + table_name + "+" + index_attr_name[2*i] + "+" + index_attr_name[2*i+1];
         IM.deleteOneBykey(path, ss.str(), type);
     }
 }
@@ -1359,7 +1358,7 @@ void RecordManager::update_index_tail(string table_name, vector<Attribute>& Attr
     char* chtmp;
     stringstream ss;
     
-    for(int i = 0; i < index_attr_name.size()/2; i=i+2)
+    for(int i = 0; i < index_attr_name.size()/2; i++)
     {
         offset = 0;
         for(int j = 0; j < Attribute_vec.size(); ++i)
@@ -1395,7 +1394,7 @@ void RecordManager::update_index_tail(string table_name, vector<Attribute>& Attr
             }
             offset+=Attribute_vec[i].attr_len;
         }
-        string path = CL.used_Database + "+" + table_name + "+" + index_attr_name[i] + "+" + index_attr_name[i+1];
+        string path = CL.used_Database + "+" + table_name + "+" + index_attr_name[2*i] + "+" + index_attr_name[2*i+1];
         IM.updateOne(path, ss.str(), type, count1);
     }
     
@@ -1409,7 +1408,7 @@ void RecordManager::insert_index(string table_name, vector<Attribute>& Attribute
     
     int type;
 
-    for(int i = 0; i < index_attr_name.size()/2; i=i+2)
+    for(int i = 0; i < index_attr_name.size()/2; i=i+1)
     {
         for(int j = 0; j < Attribute_vec.size(); ++j)
         {
@@ -1432,7 +1431,7 @@ void RecordManager::insert_index(string table_name, vector<Attribute>& Attribute
                 break;
         }
         
-        string path = CL.used_Database + "+" + table_name + "+" + index_attr_name[i] + "+" + index_attr_name[i+1];
+        string path = CL.used_Database + "+" + table_name + "+" + index_attr_name[2*i] + "+" + index_attr_name[2*i+1];
         IM.insertOne(path, value_vec[attr_no], type, count+1);
         
     }

@@ -88,7 +88,8 @@ Buffer::deleteFile(const FileNameType &fileName)
         }
     }
     CL.Set_Block_Num(fileName, 0);
-    remove(fileName.c_str());
+    string path = "./DB_Files/" + CL.used_Database + "/" + fileName;
+    remove(path.c_str());
 }
 void
 Buffer::output(const BufferBlockIdType &bufferBlockId, const FileNameType &fileName,

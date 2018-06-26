@@ -391,10 +391,10 @@ void CatalogManager::Drop_Table(string Table_Name)
     string path;
     path = "./DB_Files/" + used_Database + "/" + Table_Name;
     int status = remove(path.c_str());
-    if(status!=0)
-    {
-        throw CatalogError("Can not delete the table!!");
-    }
+//    if(status!=0)
+//    {
+//        throw CatalogError("Can not delete the table!!");
+//    }
     
     //删索引
     vector<string> attrs = Get_Attr_Info_All(Table_Name);
@@ -410,6 +410,7 @@ void CatalogManager::Drop_Table(string Table_Name)
             string attr = words[0];
             int type = atoi(words[1].c_str());
             string index = Table_Name + "-" + attr+ "-index";
+//            cout<<attr<<" "<<index<<" "<<type<<endl;
             IM.dropIndex(used_Database, Table_Name, attr, index, type);
         }
     }
