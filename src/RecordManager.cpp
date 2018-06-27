@@ -217,7 +217,6 @@ int RecordManager::Record_DeleteValue(const string table_name, vector<Condition>
     				memcpy(chtmp, chunk->data+query_addr+offset, length);
     				chtmp[length] = '\0';
     				strtmp = string(chtmp);
-                    cout<<strtmp<<endl;
     				flag = Condition_vec[i].ifRight(strtmp);
     				break;
     		}
