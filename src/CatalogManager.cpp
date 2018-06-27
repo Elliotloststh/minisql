@@ -409,11 +409,9 @@ void CatalogManager::Drop_Table(string Table_Name)
     // 删表
     string path;
     path = "./DB_Files/" + used_Database + "/" + Table_Name;
-    int status = remove(path.c_str());
-//    if(status!=0)
-//    {
-//        throw CatalogError("Can not delete the table!!");
-//    }
+
+    bm.deleteFile(Table_Name);
+
     
     //删索引
     vector<string> attrs = Get_Attr_Info_All(Table_Name);
