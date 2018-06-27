@@ -1,1 +1,2 @@
-0
+1
+employee 7 10220 284 id 0 4 primary employee-id-index 33 name 32 32 unique null 0 gender 1 1 null null 0 age 0 4 null null 0 salary -1 4 null null 0 country 2 2 null null 0 email 64 64 unique null 0 

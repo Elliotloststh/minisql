@@ -736,7 +736,7 @@ void BPlusTree<Key>::insertLeaf(Key &target, int record, Node *leaf)
     int offset = leaf->keyBinarySearch(target);
     if (offset < leaf->total_child && leaf->record_offsets[offset] == record) //record already in node
     {
-        cout << "keyBinarySearch() Error: Record already innode " << endl;
+//        cout << "keyBinarySearch() Error: Record already innode " << endl;
         // throw(string("keyBinarySearch() Error: Record already innode"));
         return;
     }
