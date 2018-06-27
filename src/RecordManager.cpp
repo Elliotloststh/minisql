@@ -1305,7 +1305,7 @@ void RecordManager::delete_index(string table_name, vector<Attribute>& Attribute
     for(int i = 0; i < index_attr_name.size()/2; i++)
     {
         offset = 0;
-        for(int j = 0; j < Attribute_vec.size(); ++i)
+        for(int j = 0; j < Attribute_vec.size(); ++j)
         {
             if(index_attr_name[i*2] == Attribute_vec[j].attr_name)
             {
@@ -1352,16 +1352,16 @@ void RecordManager::update_index_tail(string table_name, vector<Attribute>& Attr
     //int total_attr_size = get_TotalLength(Attribute_vec);
     
     
-    int inttmp;
-    float floattmp;
-    string strtmp;
+    
+    
+    
     char* chtmp;
     stringstream ss;
     
     for(int i = 0; i < index_attr_name.size()/2; i++)
     {
         offset = 0;
-        for(int j = 0; j < Attribute_vec.size(); ++i)
+        for(int j = 0; j < Attribute_vec.size(); ++j)
         {
             if(index_attr_name[i*2] == Attribute_vec[j].attr_name)
             {
@@ -1370,18 +1370,21 @@ void RecordManager::update_index_tail(string table_name, vector<Attribute>& Attr
                 switch(Attribute_vec[attr_no].attr_type)
                 {
                     case(INT):
+                        int inttmp;
                         type = 0;
                         memcpy(&inttmp, buffer+offset, Attribute_vec[attr_no].attr_len);
                         ss.clear();
                         ss<<inttmp;
                         break;
                     case(FLOAT):
+                        float floattmp;
                         type = -1;
                         memcpy(&floattmp, buffer+offset, Attribute_vec[attr_no].attr_len);
                         ss.clear();
                         ss<<floattmp;
                         break;
                     case(CHAR):
+                        string strtmp;
                         type = Attribute_vec[attr_no].attr_len;
                         memcpy(chtmp, buffer+offset, Attribute_vec[attr_no].attr_len);
                         chtmp[Attribute_vec[attr_no].attr_len]='\0';
