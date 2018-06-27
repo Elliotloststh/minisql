@@ -362,7 +362,7 @@ int RecordManager::Record_Update(string table_name, vector<Attribute>& select_at
     chunk->unPin();
     if(ret==0)
         return 0;
-    else if (ret > 1 && (select_attr_vec[0].attr_key_type==PRIMARY || select_attr_vec[0].attr_key_type==EMPTY))
+    else if (ret > 1 && (select_attr_vec[0].attr_key_type==PRIMARY || select_attr_vec[0].attr_key_type==UNIQUE))
         return -1;
     
     
@@ -475,7 +475,7 @@ int RecordManager::Record_Update(string table_name, vector<Attribute>& select_at
                                 break;
                         }
                         update_index(table_name,Attribute_vec,select_attr_vec[j],value_vec[j], buffer2);
-                        if(select_attr_vec[j].attr_key_type==PRIMARY || select_attr_vec[j].attr_key_type==EMPTY)
+                        if(select_attr_vec[j].attr_key_type==PRIMARY || select_attr_vec[j].attr_key_type==UNIQUE)
                         {
                             SelectResult SR;
                             vector<Condition> cv;
@@ -590,7 +590,7 @@ int RecordManager::Record_Update(const string table_name, vector<int>& offset, v
     }
     if(ret==0)
         return 0;
-    else if (ret > 1 && (select_attr_vec[0].attr_key_type==PRIMARY || select_attr_vec[0].attr_key_type==EMPTY))
+    else if (ret > 1 && (select_attr_vec[0].attr_key_type==PRIMARY || select_attr_vec[0].attr_key_type==UNIQUE))
         return -1;
     
     ret = 0;
@@ -696,7 +696,7 @@ int RecordManager::Record_Update(const string table_name, vector<int>& offset, v
                                 break;
                         }
                         update_index(table_name,Attribute_vec,select_attr_vec[j],value_vec[j], buffer2);
-                        if(select_attr_vec[j].attr_key_type==PRIMARY || select_attr_vec[j].attr_key_type==EMPTY)
+                        if(select_attr_vec[j].attr_key_type==PRIMARY || select_attr_vec[j].attr_key_type==UNIQUE)
                         {
                             SelectResult SR;
                             vector<Condition> cv;

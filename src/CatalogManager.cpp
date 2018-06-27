@@ -43,6 +43,9 @@ CatalogManager::~CatalogManager()
 //创建数据库
 void CatalogManager::Create_Database(string DB_Name)
 {
+    double dur;
+    clock_t start,end;
+    start = clock();
     if(!Judge_String_Length(DB_Name))
     {
         throw CatalogError("Too long!!");
@@ -114,7 +117,9 @@ void CatalogManager::Create_Database(string DB_Name)
             contents.push_back(itoa(num));
             contents.push_back(DBs);
             Write_Into_File("./DB_Files/database_list", contents); // 写
-            cout << "succeed!!" << endl;
+            end = clock();
+            dur = (double)(end - start);
+            cout << "Succeed!! (" <<dur/CLOCKS_PER_SEC<<" sec)"<<endl;
         }
     }
     else
@@ -141,7 +146,9 @@ void CatalogManager::Create_Database(string DB_Name)
             contents.push_back(itoa(1));
             contents.push_back(DBs);
             Write_Into_File("./DB_Files/database_list", contents); // 写
-            cout << "succeed!!" << endl;
+            end = clock();
+            dur = (double)(end - start);
+            cout << "Succeed!! (" <<dur/CLOCKS_PER_SEC<<" sec)"<<endl;
         }
     }
 }
@@ -165,6 +172,9 @@ void CatalogManager::Use_Database(string DB_Name)
 //删除数据库
 void CatalogManager::Drop_Database(string DB_Name)
 {
+    double dur;
+    clock_t start,end;
+    start = clock();
     string path = "./DB_Files/database_list";
     vector<string> lines;
     try{
@@ -211,7 +221,9 @@ void CatalogManager::Drop_Database(string DB_Name)
                         {
                             lines[1] = lines[1] + DBs[j] + " ";
                         }
-                        cout << "Succeed!!" << endl;;
+                        end = clock();
+                        dur = (double)(end - start);
+                        cout << "Succeed!! (" <<dur/CLOCKS_PER_SEC<<" sec)"<<endl;
                     }
                     else
                     {
@@ -250,6 +262,9 @@ void CatalogManager::Drop_Database(string DB_Name)
 // 表名 属性数 实际记录数量 表的block数 {属性名 数据类型 数据长度 属性类型（约束） 索引名 索引的block数}*
 void CatalogManager::Create_Table(SqlCommand& cmd)
 {
+    double dur;
+    clock_t start,end;
+    start = clock();
     if(used_Database=="")
     {
         throw CatalogError("No database selected!!");
@@ -360,13 +375,17 @@ void CatalogManager::Create_Table(SqlCommand& cmd)
             IM.createIndex(used_Database, t.table_name, t.attr_name[i], index_name, t.attr_type[i]);
         }
     }
-    
-    cout << "succeed!!" << endl;
+    end = clock();
+    dur = (double)(end - start);
+    cout << "Succeed!! (" <<dur/CLOCKS_PER_SEC<<" sec)"<<endl;
 }
 
 //删除表
 void CatalogManager::Drop_Table(string Table_Name)
 {
+    double dur;
+    clock_t start,end;
+    start = clock();
     if(used_Database=="")
     {
         throw CatalogError("No database selected!!");
@@ -429,8 +448,9 @@ void CatalogManager::Drop_Table(string Table_Name)
     vector<string>::iterator p = lines.begin() + i + 1;
     lines.erase(p);
     Write_Into_File(path, lines);
-    
-    cout << "Succeed!!" << endl;
+    end = clock();
+    dur = (double)(end - start);
+    cout << "Succeed!! (" <<dur/CLOCKS_PER_SEC<<" sec)"<<endl;
 }
 
 //创建索引
@@ -523,7 +543,7 @@ void CatalogManager::Create_Index(string Index_Name, string Table_Name, string A
     if(flag)
     {
         Write_Into_File(path, lines);
-        cout << "Succeed!!" << endl;
+        cout << "Succeed!!";
     }
     else
     {
@@ -534,6 +554,9 @@ void CatalogManager::Create_Index(string Index_Name, string Table_Name, string A
 //删除索引
 void CatalogManager::Drop_Index(string Index_Name)
 {
+    double dur;
+    clock_t start,end;
+    start = clock();
     if(used_Database=="")
     {
         throw CatalogError("No database selected!!");
@@ -578,7 +601,9 @@ void CatalogManager::Drop_Index(string Index_Name)
     if(flag)
     {
         Write_Into_File(path, lines);
-        cout << "Succeed!!" << endl;
+        end = clock();
+        dur = (double)(end - start);
+        cout << "Succeed!! (" <<dur/CLOCKS_PER_SEC<<" sec)"<<endl;
     }
     else
     {
@@ -941,7 +966,7 @@ Attribute CatalogManager::Get_Attr_Info_Record(string Table_Name, string Attr)
     if(atoi(words[1].c_str())>0)
     {
         attr.attr_type = CHAR;
-        attr.attr_len = atoi(words[0].c_str());
+        attr.attr_len = atoi(words[1].c_str());
     }
     else if(atoi(words[1].c_str())==0)
     {

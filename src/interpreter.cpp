@@ -24,11 +24,24 @@ string InterPreter::Read_input()
 }
 
 /*主要是为了从file里面获取sql语句*/
+
+//string InterPreter::initial_sentense(string old_sql)
+//{
+//    if (old_sql.at(old_sql.length() - 1) == ';')
+//    {
+//        old_sql = old_sql.substr(0, old_sql.length() - 1);
+//        old_sql += " ;";
+//        old_sql = Process(old_sql);
+//        return old_sql;
+//    }
+//
+//    return "error";
+//}
 string InterPreter::initial_sentense(string old_sql)
 {
-    if (old_sql.at(old_sql.length() - 1) == ';')
+    if (old_sql.find(';') != -1)
     {
-        old_sql = old_sql.substr(0, old_sql.length() - 1);
+        old_sql = old_sql.substr(0, old_sql.find(';'));
         old_sql += " ;";
         old_sql = Process(old_sql);
         return old_sql;
@@ -36,7 +49,6 @@ string InterPreter::initial_sentense(string old_sql)
     
     return "error";
 }
-
 /*预处理模块*/
 string InterPreter::Process(string sql)
 {

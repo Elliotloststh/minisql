@@ -32,7 +32,7 @@ void API::execute(SqlCommand sql)
             case (SQL_DROP_DATABASE):
             {
                 CL.Drop_Database(sql_temp.get_database_name());
-                //cout << "Query OK, 0 rows affected" << endl;
+                
                 break;
             }
                 
@@ -80,11 +80,15 @@ void API::execute(SqlCommand sql)
                     cout << "Can not create index!!" << endl;
                     return;
                 }
-                
+                double dur;
+                clock_t start,end;
+                start = clock();
                 CL.Create_Index(sql_temp.get_index_name(), sql_temp.get_table_name(), sql_temp.get_col_name());
                 vector<Attribute> all_info = CL.Get_Attr_Info_All_Record(sql_temp.get_table_name());
                 RM.Record_CreateIndex(sql_temp.get_table_name(), sql_temp.get_col_name(), sql_temp.get_index_name(), all_info);
-                
+                end = clock();
+                dur = (double)(end - start);
+                cout<<" (" <<dur/CLOCKS_PER_SEC<<" sec)"<<endl;
                 //cout << "Query OK, 0 rows affected" << endl;
                 break;
             }
@@ -92,6 +96,9 @@ void API::execute(SqlCommand sql)
                 /*insert into table values ('A', 'B', 'C' ...)*/
             case (SQL_INSERT_INTO):
             {
+                double dur;
+                clock_t start,end;
+                start = clock();
                 bool flag = true;
                 flag = CL.Judge_Table_Exist(sql_temp.get_table_name());
                 
@@ -116,13 +123,18 @@ void API::execute(SqlCommand sql)
                 else
                 {
                     CL.Add_Tuple(1, sql_temp.get_table_name());
-                    cout << "Query OK, 1 row affected" << endl;
+                    end = clock();
+                    dur = (double)(end - start);
+                    cout << "Query OK, 1 row affected (" <<dur/CLOCKS_PER_SEC<<" sec)"<<endl;
                 }
                 break;
             }
                 
             case (SQL_DELETE_FROM):
             {
+                double dur;
+                clock_t start,end;
+                start = clock();
                 int record_num;
                 bool flag = true;
                 flag = CL.Judge_Table_Exist(sql_temp.get_table_name());
@@ -164,14 +176,19 @@ void API::execute(SqlCommand sql)
                 }
                 CL.Delete_Tuple(record_num, sql_temp.get_table_name());
                 string info = "";
+                end = clock();
+                dur = (double)(end - start);
                 info = info + "Query OK, " + to_string(record_num) + " rows affected";
-                cout << info << endl;
+                cout << info <<" (" <<dur/CLOCKS_PER_SEC<<" sec)"<< endl;
                 break;
             }
                 
                 /*select * from student where sage > 20 and sgender = 'F';*/
             case (SQL_SELECT_FROM):
             {
+                double dur;
+                clock_t start,end;
+                start = clock();
                 SelectResult result;
                 vector<Attribute> all_info;
                 vector<int> Result;
@@ -259,7 +276,9 @@ void API::execute(SqlCommand sql)
                 
                 info = to_string(record_num);
                 info += " rows in set.";
-                cout << info << endl;
+                end = clock();
+                dur = (double)(end - start);
+                cout << info <<" (" <<dur/CLOCKS_PER_SEC<<" sec)"<< endl;
                 break;
             }
                 
@@ -315,6 +334,9 @@ void API::execute(SqlCommand sql)
                 /*update table set id = 5 where ... and ...*/
             case (SQL_UPDATE):
             {
+                double dur;
+                clock_t start,end;
+                start = clock();
                 vector<int> Result;
                 vector<class Attribute> all_info;
                 vector<string> value;
@@ -388,7 +410,11 @@ void API::execute(SqlCommand sql)
                 if(record_num == -1)
                     cout<<"Duplicate entry for primary key or unique key"<<endl;
                 else
-                    cout << "Query OK, " + to_string(record_num) + " rows affected"<<endl;
+                {
+                    end = clock();
+                    dur = (double)(end - start);
+                    cout << "Query OK, " + to_string(record_num) + " rows affected"<<" (" <<dur/CLOCKS_PER_SEC<<" sec)"<<endl;
+                }
                 break;
             }
                 
@@ -417,12 +443,18 @@ void API::sql_execfile(SqlCommand sql_temp)
 	while (getline(read_in, sql_com)) //sql_com是已经存放在里面的sql命令
 	{
 		InterPreter inter_temp;
-
+        
+        if (sql_com.find('#') != -1)
+        {
+            sql_com = sql_com.substr(0, sql_com.find('#'));
+        }
+        
 		if (sql_com.empty())
 			continue;
 
 		if (sql_com.find(';') == -1)
 		{
+            sql_com = sql_com.substr(0,sql_com.length()-1); //VS用户请注释掉这行，因为VS编译器getline不会读入换行符
 			sql_clause += sql_com;
 			continue;
 		}
@@ -430,7 +462,6 @@ void API::sql_execfile(SqlCommand sql_temp)
 		{
 			sql_clause += sql_com;
 		}
-
 		sql_com = inter_temp.initial_sentense(sql_clause);
 
 		if (sql_com == "error") //如果出错的话，打印出来就吼了
